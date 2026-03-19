@@ -4,7 +4,7 @@ const PISTON_EXECUTE_URL = 'https://emkc.org/api/v2/piston/execute'
 
 const unavailableResponse = {
   stdout: '',
-  stderr: 'Code runner unavailable.',
+  stderr: 'Code runner unavailable. Check your connection.',
   exitCode: -1,
 }
 

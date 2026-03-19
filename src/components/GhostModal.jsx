@@ -6,7 +6,6 @@ import { extractErrorWindow } from '../utils/errorParser.js'
 import { buildTaxonomyPrompt } from '../prompts/taxonomy.prompt.js'
 import { buildSocraticPrompt } from '../prompts/socratic.prompt.js'
 import { buildEvaluatePrompt } from '../prompts/evaluate.prompt.js'
-import { FALLBACK_QUESTIONS } from '../data/fallbackQuestions.js'
 
 const TAXONOMY_MODEL = 'meta-llama/llama-3.3-70b-instruct:free'
 const EVALUATE_MODEL = 'google/gemini-2.0-flash-exp:free'
@@ -29,13 +28,6 @@ function parseJsonPayload(text) {
       return null
     }
   }
-}
-
-function getFallbackQuestion(category, questionNumber) {
-  const bank = FALLBACK_QUESTIONS[category] ?? FALLBACK_QUESTIONS.other
-  if (questionNumber <= 1) return bank[0]
-  if (questionNumber === 2) return bank[1]
-  return bank[2]
 }
 
 function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
@@ -74,9 +66,9 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
       nextQuestionNumber,
       previousAnswer,
     )
-    const response = await callAI(TAXONOMY_MODEL, messages, 220)
+    const response = await callAI(TAXONOMY_MODEL, messages, 220, category)
     const content = getAiContent(response?.data)
-    const fallback = getFallbackQuestion(category, nextQuestionNumber)
+    const fallback = response?.fallbackQuestion
 
     setCurrentQuestion(content || fallback)
     setQuestionNumber(nextQuestionNumber)
@@ -105,7 +97,7 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
       setIsLoadingQuestion(true)
 
       const taxonomyMessages = buildTaxonomyPrompt(truncatedError, codeWindow)
-      const taxonomyResponse = await callAI(TAXONOMY_MODEL, taxonomyMessages, 220)
+      const taxonomyResponse = await callAI(TAXONOMY_MODEL, taxonomyMessages, 220, 'other')
       const taxonomyContent = getAiContent(taxonomyResponse?.data)
       const taxonomyJson = parseJsonPayload(taxonomyContent)
       const category = taxonomyJson?.category || 'other'
@@ -140,7 +132,7 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
       truncatedError,
       taxonomyResult.category,
     )
-    const evaluationResponse = await callAI(EVALUATE_MODEL, messages, 220)
+    const evaluationResponse = await callAI(EVALUATE_MODEL, messages, 220, taxonomyResult.category)
     const evaluationContent = getAiContent(evaluationResponse?.data)
     const evaluationJson = parseJsonPayload(evaluationContent) ?? {
       verdict: 'partial',

@@ -1,4 +1,5 @@
 import { callOpenRouter } from '../services/openRouterApi.js'
+import { FALLBACK_QUESTIONS } from '../data/fallbackQuestions.js'
 
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX_CALLS = 30
@@ -12,7 +13,13 @@ function wait(ms) {
   })
 }
 
-export async function callAI(model, messages, maxTokens = 500) {
+function getRandomFallbackQuestion(category = 'other') {
+  const bank = FALLBACK_QUESTIONS[category] ?? FALLBACK_QUESTIONS.other
+  const randomIndex = Math.floor(Math.random() * bank.length)
+  return bank[randomIndex]
+}
+
+export async function callAI(model, messages, maxTokens = 500, category) {
   const now = Date.now()
 
   callTimestampsRef.current = callTimestampsRef.current.filter(
@@ -20,7 +27,11 @@ export async function callAI(model, messages, maxTokens = 500) {
   )
 
   if (callTimestampsRef.current.length >= RATE_LIMIT_MAX_CALLS) {
-    return { data: null, usedFallback: true }
+    return {
+      data: null,
+      usedFallback: true,
+      fallbackQuestion: getRandomFallbackQuestion(category),
+    }
   }
 
   const elapsedSinceLastCall = now - lastCallAtRef.current
@@ -33,9 +44,13 @@ export async function callAI(model, messages, maxTokens = 500) {
 
   const data = await callOpenRouter(model, messages, maxTokens)
   if (data === null) {
-    return { data: null, usedFallback: true }
+    return {
+      data: null,
+      usedFallback: true,
+      fallbackQuestion: getRandomFallbackQuestion(category),
+    }
   }
 
-  return { data, usedFallback: false }
+  return { data, usedFallback: false, fallbackQuestion: null }
 }
 

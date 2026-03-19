@@ -13,6 +13,7 @@ function ControlBar({
   isRunning,
   stdout,
   stderr,
+  cleanRunStreak,
 }) {
   return (
     <div
@@ -89,8 +90,29 @@ function ControlBar({
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: 13,
           whiteSpace: 'pre-wrap',
+          position: 'relative',
         }}
       >
+        {cleanRunStreak >= 2 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 999,
+              background: 'rgba(34, 197, 94, 0.2)',
+              color: '#86efac',
+              border: '1px solid rgba(34, 197, 94, 0.45)',
+              padding: '4px 10px',
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            🔥 {cleanRunStreak} clean runs
+          </div>
+        )}
         <div style={{ color: '#22c55e', minHeight: 80 }}>
           {stdout || 'stdout will appear here...'}
         </div>

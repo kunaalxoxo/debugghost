@@ -1,16 +1,20 @@
-# React + Vite
+# DebugGhost 👻
+> The AI that teaches by NOT giving you the answer.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## What it does
+DebugGhost watches you code, detects when you're stuck, and instead of fixing your bug — interrogates you with Socratic questions until you reason your way to the solution yourself. It then builds a personal Blind Spot Radar Chart of your recurring cognitive weak points.
 
-Currently, two official plugins are available:
+## Quick Start
+1. Clone the repo
+2. Run `npm install`
+3. Copy `.env.example` to `.env` and add your OpenRouter API key (free at openrouter.ai)
+4. Run `npm run dev`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
+React + Vite + Monaco Editor + Framer Motion + Recharts + OpenRouter AI + Piston API
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## How the AI works
+- Classifies your error by cognitive origin (not just error type)
+- Generates Socratic questions calibrated to your specific misunderstanding
+- Evaluates your answers and escalates or affirms
+- Builds a personal blind spot map over sessions

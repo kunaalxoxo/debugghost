@@ -35,6 +35,7 @@ function App() {
   const [stdout, setStdout] = useState('')
   const [stderr, setStderr] = useState('')
   const [isRunning, setIsRunning] = useState(false)
+  const [cleanRunStreak, setCleanRunStreak] = useState(0)
   const [sessionSummary, setSessionSummary] = useState(null)
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)
 
@@ -65,6 +66,11 @@ function App() {
     const result = await executeCode({ language, content: currentCode })
     setStdout(result.stdout || '')
     setStderr(result.stderr || '')
+    if (result.stderr) {
+      setCleanRunStreak(0)
+    } else {
+      setCleanRunStreak((prev) => prev + 1)
+    }
     setIsRunning(false)
   }
 
@@ -138,6 +144,7 @@ function App() {
             isRunning={isRunning}
             stdout={stdout}
             stderr={stderr}
+            cleanRunStreak={cleanRunStreak}
           />
         </div>
       </div>
