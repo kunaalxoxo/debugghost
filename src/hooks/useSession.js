@@ -41,11 +41,20 @@ function useSession() {
         answeredCorrectlyOn,
       })
 
+      const nextSessionCount = getSessionCount()
+      const nextFingerprint = getFingerprint()
+
       activeSessionIdRef.current = null
-      refreshFingerprint()
-      return saved
+      setSessionCount(nextSessionCount)
+      setFingerprint(nextFingerprint)
+
+      return {
+        saved,
+        sessionCount: nextSessionCount,
+        fingerprint: nextFingerprint,
+      }
     },
-    [refreshFingerprint],
+    [],
   )
 
   return useMemo(

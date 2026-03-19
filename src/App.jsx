@@ -39,7 +39,7 @@ function App() {
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)
 
   const currentCode = useMemo(() => code, [code])
-  const { startSession, endSession, sessionCount } = useSession()
+  const { startSession, endSession, sessionCount, fingerprint } = useSession()
 
   const { isStuck, resetStuckState } = useStuckDetector({
     stderr,
@@ -75,7 +75,7 @@ function App() {
       return
     }
 
-    endSession({
+    const result = endSession({
       errorCategory: payload.errorCategory,
       questionsAsked: payload.questionsAsked,
       outcome: payload.outcome,
@@ -85,7 +85,8 @@ function App() {
     setSessionSummary({
       outcome: payload.outcome,
       errorCategory: payload.errorCategory,
-      sessionCount: sessionCount + 1,
+      sessionCount: result.sessionCount,
+      fingerprint: result.fingerprint,
     })
     setIsSummaryOpen(true)
   }
@@ -151,7 +152,12 @@ function App() {
 
       <SessionSummary
         isOpen={isSummaryOpen}
-        summary={sessionSummary}
+        summary={
+          sessionSummary || {
+            sessionCount,
+            fingerprint,
+          }
+        }
         onClose={handleSessionSummaryClose}
       />
     </div>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import BlindSpotChart from './BlindSpotChart.jsx'
 
 const OUTCOME_EMOJI = {
   understood: '🎯',
@@ -72,6 +73,15 @@ function SessionSummary({ isOpen, summary, onClose }) {
             >
               {summary.errorCategory || 'other'}
             </span>
+          </div>
+
+          <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
+            {summary.sessionCount >= 3 && (
+              <BlindSpotChart
+                fingerprint={summary.fingerprint}
+                sessionCount={summary.sessionCount}
+              />
+            )}
           </div>
 
           <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
