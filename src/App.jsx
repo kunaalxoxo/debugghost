@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import GhostAvatar from './components/GhostAvatar.jsx'
 import Editor from './components/Editor.jsx'
 import ControlBar from './components/ControlBar.jsx'
+import GhostModal from './components/GhostModal.jsx'
 import { executeCode } from './services/pistonApi.js'
 import useStuckDetector from './hooks/useStuckDetector.js'
 
@@ -35,7 +36,7 @@ function App() {
 
   const currentCode = useMemo(() => code, [code])
 
-  useStuckDetector({
+  const { isStuck, resetStuckState } = useStuckDetector({
     stderr,
     code,
     onTrigger: () => {
@@ -103,6 +104,14 @@ function App() {
           />
         </div>
       </div>
+
+      <GhostModal
+        isOpen={isStuck}
+        onClose={resetStuckState}
+        errorMessage={stderr}
+        code={code}
+        language={language}
+      />
     </div>
   )
 }

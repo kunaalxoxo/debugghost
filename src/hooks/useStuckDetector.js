@@ -76,10 +76,15 @@ function useStuckDetector({ stderr, code, onTrigger }) {
     onTriggerRef.current?.()
   }, [stderr, secondsOnError, editCount])
 
+  const resetStuckState = () => {
+    setIsStuck(false)
+  }
+
   return {
     isStuck,
     secondsOnError,
     editCount,
+    resetStuckState,
   }
 }
 
