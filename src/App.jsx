@@ -3,6 +3,7 @@ import GhostAvatar from './components/GhostAvatar.jsx'
 import Editor from './components/Editor.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import { executeCode } from './services/pistonApi.js'
+import useStuckDetector from './hooks/useStuckDetector.js'
 
 const STARTER_SNIPPETS = {
   python: `print("Hello from DebugGhost")`,
@@ -33,6 +34,14 @@ function App() {
   const [isRunning, setIsRunning] = useState(false)
 
   const currentCode = useMemo(() => code, [code])
+
+  useStuckDetector({
+    stderr,
+    code,
+    onTrigger: () => {
+      console.log('GHOST TRIGGERED')
+    },
+  })
 
   const handleLanguageChange = (nextLanguage) => {
     setLanguage(nextLanguage)
