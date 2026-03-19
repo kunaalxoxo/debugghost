@@ -56,6 +56,10 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
     [code, errorMessage],
   )
 
+  const closeSession = (payload = null) => {
+    onClose(payload)
+  }
+
   const fetchSocraticQuestion = async ({
     category,
     nextQuestionNumber,
@@ -152,7 +156,16 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
     if (verdict === 'correct' || (verdict === 'partial' && questionNumber >= 3)) {
       setSessionOutcome('understood')
       setCurrentQuestion(encouragement)
-      setTimeout(() => onClose(), 2000)
+      setTimeout(
+        () =>
+          closeSession({
+            outcome: 'understood',
+            errorCategory: taxonomyResult.category,
+            questionsAsked: questionNumber,
+            answeredCorrectlyOn: questionNumber,
+          }),
+        2000,
+      )
       return
     }
 
@@ -161,7 +174,16 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
       setCurrentQuestion(
         `Direct assist: start at line ${Math.max(1, codeWindow.split('\n').length > 0 ? 1 : 1)} and verify types/inputs against ${taxonomyResult.category}.`,
       )
-      setTimeout(() => onClose(), 3000)
+      setTimeout(
+        () =>
+          closeSession({
+            outcome: 'assisted',
+            errorCategory: taxonomyResult.category,
+            questionsAsked: MAX_QUESTIONS,
+            answeredCorrectlyOn: null,
+          }),
+        3000,
+      )
       return
     }
 
@@ -188,7 +210,16 @@ function GhostModal({ isOpen, onClose, errorMessage, code, language }) {
 
     if (nextBypassCount >= 3) {
       setSessionOutcome('bypassed')
-      setTimeout(() => onClose(), 2000)
+      setTimeout(
+        () =>
+          closeSession({
+            outcome: 'bypassed',
+            errorCategory: taxonomyResult.category,
+            questionsAsked: questionNumber,
+            answeredCorrectlyOn: null,
+          }),
+        2000,
+      )
       return
     }
 

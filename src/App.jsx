@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import GhostAvatar from './components/GhostAvatar.jsx'
 import Editor from './components/Editor.jsx'
 import ControlBar from './components/ControlBar.jsx'
 import GhostModal from './components/GhostModal.jsx'
+import SessionSummary from './components/SessionSummary.jsx'
 import { executeCode } from './services/pistonApi.js'
 import useStuckDetector from './hooks/useStuckDetector.js'
+import useSession from './hooks/useSession.js'
 
 const STARTER_SNIPPETS = {
   python: `print("Hello from DebugGhost")`,
@@ -33,16 +35,23 @@ function App() {
   const [stdout, setStdout] = useState('')
   const [stderr, setStderr] = useState('')
   const [isRunning, setIsRunning] = useState(false)
+  const [sessionSummary, setSessionSummary] = useState(null)
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false)
 
   const currentCode = useMemo(() => code, [code])
+  const { startSession, endSession, sessionCount } = useSession()
 
   const { isStuck, resetStuckState } = useStuckDetector({
     stderr,
     code,
-    onTrigger: () => {
-      console.log('GHOST TRIGGERED')
-    },
+    onTrigger: startSession,
   })
+
+  useEffect(() => {
+    if (isStuck) {
+      startSession()
+    }
+  }, [isStuck, startSession])
 
   const handleLanguageChange = (nextLanguage) => {
     setLanguage(nextLanguage)
@@ -57,6 +66,33 @@ function App() {
     setStdout(result.stdout || '')
     setStderr(result.stderr || '')
     setIsRunning(false)
+  }
+
+  const handleGhostClose = (payload) => {
+    resetStuckState()
+
+    if (!payload?.outcome) {
+      return
+    }
+
+    endSession({
+      errorCategory: payload.errorCategory,
+      questionsAsked: payload.questionsAsked,
+      outcome: payload.outcome,
+      answeredCorrectlyOn: payload.answeredCorrectlyOn,
+    })
+
+    setSessionSummary({
+      outcome: payload.outcome,
+      errorCategory: payload.errorCategory,
+      sessionCount: sessionCount + 1,
+    })
+    setIsSummaryOpen(true)
+  }
+
+  const handleSessionSummaryClose = () => {
+    setIsSummaryOpen(false)
+    setSessionSummary(null)
   }
 
   return (
@@ -107,10 +143,16 @@ function App() {
 
       <GhostModal
         isOpen={isStuck}
-        onClose={resetStuckState}
+        onClose={handleGhostClose}
         errorMessage={stderr}
         code={code}
         language={language}
+      />
+
+      <SessionSummary
+        isOpen={isSummaryOpen}
+        summary={sessionSummary}
+        onClose={handleSessionSummaryClose}
       />
     </div>
   )
